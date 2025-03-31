@@ -1,36 +1,54 @@
 import tkinter as tk
-
+from PIL import Image
 from gui.src.config import *
-from app.Globals import Globals
+from gui.src.gui_objects import *
+from gui.utils import *
 
 __all__ = [
     "GUI"
 ]
 
-g = Globals()
 
 class GUI(tk.Frame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, globals):
         super().__init__(master)
-        g.APP_TITLE = kwargs.get("app_title", g.APP_TITLE)
-        g.SCREEN_WIDTH = kwargs.get("screen_width", 1640)
-        g.SCREEN_HEIGHT = kwargs.get("screen_height", 1220)
+        self.menus = {}
+        self.sub_frames = {}
+        self.button_icons = {}
 
-        InitializeGUIConfiguration(self, **kwargs)
+        InitializeGUIConfiguration(self, globals)
 
         self.pack()
 
         self.grid()
         
         # Create a menu bar frame and align it to top-left
-        menu_frame = tk.Frame(self)
-        menu_frame.grid(row=0, column=0, sticky="nw", columnspan=7)
+        menu_bar = tk.Menu(self)
+        master.config(menu=menu_bar)
 
         menu_bar_buttons = GetMenuBarButtons()
-        sub_frames = GetSubFrames(g)
+        sub_frames_data = GetSubFrames(globals)
 
-        for key, value in menu_bar_buttons.items():
-            tk.Button(menu_frame, text=key).grid(**value)
+        dropdown_options = GetDropdownOptions()
 
-        for key, (val1, val2) in sub_frames.items():
-            tk.Frame(self, **val1).grid(**val2)
+
+        for i, key in enumerate(menu_bar_buttons):
+            self.menus[key] = tk.Menu(menu_bar)
+            for option in dropdown_options[i]:
+                self.menus[key].add_command(label=option)
+
+            menu_bar.add_cascade(label=key, menu=self.menus[key])
+
+            #tk.OptionMenu(menu_frame, key, *dropdown_items[i]).grid(**value)
+
+
+        for key, (val1, val2) in sub_frames_data.items():
+            frame = tk.Frame(self, **val1)
+            frame.grid(**val2)
+            self.sub_frames[key] = frame
+
+        widget_buttons = GetWidgetButtons()
+
+        for (button, kwargs) in widget_buttons:
+            self.button_icons[button] = tk.PhotoImage(file=get_icon_path(button))
+            tk.Button(self.sub_frames["widgets-frame"], image=self.button_icons[button]).grid(**kwargs)
