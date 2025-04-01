@@ -17,26 +17,26 @@ def GetSubFrames(globals: Globals):
     SUB_FRAMES = {
         "layers-frame": ({"width": int(globals.SCREEN_WIDTH * 0.8), 
                          "height": int(globals.SCREEN_HEIGHT * 0.87), 
-                         "borderwidth": 2, "bg": "#A9A9A9"}, 
-                         {"row": 2, "column": 0, "padx": 30, "pady": 45}),
+                         "borderwidth": 2, 
+                         "bg": "#A9A9A9"}, 
+                         {"row": 2, "column": 0, "padx": 30, "pady": 45}, False),
         "widgets-frame": ({"width": int(globals.SCREEN_WIDTH * 0.175), 
                           "height": int(globals.SCREEN_HEIGHT * 0.87), 
-                          "borderwidth": 2, "bg": "#A9A9A9"}, 
-                          {"row": 2, "column": 6, "padx": 15, "pady": 0})
+                          "borderwidth": 2, 
+                          "bg": "#A9A9A9"}, 
+                          {"row": 2, "column": 6, "padx": 15, "pady": 0}, True)
     }
     return MappingProxyType(SUB_FRAMES) # Freeze SUB_FRAMES
 
 def GetDropdownOptions():
     # Dropdown menu options 
-    return [["Open", "Save"], ["Undo", "Redo"], ["Docs"]]
+    return [{"Open": None, "Save": None}, {"Undo": None, "Redo": None}, {"Docs": None}]
 
 def GetWidgetButtons():
     """
         Generates the button layout for each of the widgets that are used as image editing tools.
     
     """
-   
-
     return [
                 ("Scalpel",     {"row": 0, "column": 0, "ipadx": 10, "ipady": 10, "padx": 5, "pady": 5}), 
                 ("Rotate",      {"row": 0, "column": 1, "ipadx": 10, "ipady": 10, "padx": 5, "pady": 5}),
