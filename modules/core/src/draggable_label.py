@@ -1,10 +1,11 @@
 import tkinter as tk
 
 class DraggableLabel(tk.Label):
-    def __init__(self, master, **kwargs):
+    def __init__(self, layer, master, **kwargs):
         super().__init__(master, **kwargs)
         self.bind("<Button-1>", self.on_click)         # Mouse click
         self.bind("<B1-Motion>", self.on_drag)         # Mouse drag
+        self.layer = layer
         self._drag_data = {"x": 0, "y": 0}
         self.drag_active = False
         self.selected = False
@@ -32,6 +33,6 @@ class DraggableLabel(tk.Label):
         if self.drag_active:
             dx = event.x - self._drag_data["x"]
             dy = event.y - self._drag_data["y"]
-            x = self.winfo_x() + dx
-            y = self.winfo_y() + dy
-            self.place(x=x, y=y)
+            self.layer.x = self.winfo_x() + dx
+            self.layer.y = self.winfo_y() + dy
+            self.place(x=self.layer.x, y=self.layer.y)

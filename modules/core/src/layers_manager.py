@@ -27,10 +27,13 @@ class LayersManager:
         for layer in self._layers.layers:
             layer.widget_state = active_widget
     
-    def register_event(self, event_type: str, event):
+    def register_event(self, event_type: str, event=None, params=[]):
         match event_type:
             case "layers-click":
                 self._layers.layers_clicked(event)
+            
+            case "scale-slide":
+                self._layers.send_action(event_type, params)
 
             case _:
                 raise ValueError(f"{event_type} not a valid event_type.")

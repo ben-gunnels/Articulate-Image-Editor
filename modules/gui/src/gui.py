@@ -162,7 +162,7 @@ class GUI(tk.Frame):
             case "Move":
                 pass
             case "Scale":
-                self.widget_box = scale_widget(self.sub_frames["widgets-frame"])
+                self.widget_box = scale_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
                 self.widget_box.place(x=x, y=y)
             case "Rotate":
                 pass
