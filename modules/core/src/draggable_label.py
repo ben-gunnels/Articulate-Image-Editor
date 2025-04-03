@@ -7,10 +7,26 @@ class DraggableLabel(tk.Label):
         self.bind("<B1-Motion>", self.on_drag)         # Mouse drag
         self._drag_data = {"x": 0, "y": 0}
         self.drag_active = False
+        self.selected = False
 
     def on_click(self, event):
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
+
+        self.selected = True
+        # Add thin blue outline
+        self.config(
+            highlightthickness=1,              # Thickness of the border
+            highlightbackground="blue",        # Color of the border when not focused
+            highlightcolor="blue"              # Color of the border when focused
+        )
+    
+    def unclick(self):
+        self.selected = False
+
+        self.config(
+            highlightthickness=0
+        )
 
     def on_drag(self, event):
         if self.drag_active:

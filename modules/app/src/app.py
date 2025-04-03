@@ -1,6 +1,6 @@
 import tkinter as tk
 from gui.src.gui import GUI
-from core.src.layer_manager import LayerManager
+from core.src.layers_manager import LayersManager
 from app.Globals import Globals
 
 
@@ -11,7 +11,7 @@ screen_height = root.winfo_screenheight()
 
 # App Objects
 g = Globals()
-layer_manager = LayerManager()
+layer_manager = LayersManager()
 
 
 g.SCREEN_WIDTH = int(screen_width * 0.75)
