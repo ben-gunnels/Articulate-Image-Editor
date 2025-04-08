@@ -10,6 +10,8 @@ class DraggableLabel(tk.Label):
         self.drag_active = False
         self.selected = False
 
+    
+
     def on_click(self, event):
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y

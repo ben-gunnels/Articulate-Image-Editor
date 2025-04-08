@@ -181,7 +181,9 @@ class GUI(tk.Frame):
             case "Layers":
                 pass
             case "Crop":
-                pass
+                self.layers_manager.register_event("initialize-crop")
+                self.widget_box = crop_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
+                self.widget_box.place(x=x, y=y)
             case "Draw":
                 pass
             case _:
