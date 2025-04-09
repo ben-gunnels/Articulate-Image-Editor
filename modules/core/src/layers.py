@@ -36,8 +36,9 @@ class Layer:
         self._update_label()
 
     def unclick(self):
-        if self.label:
-            self.label.unclick()
+        if self._widget_state != "Delete":
+            if self.label:
+                self.label.unclick()
 
     def resize(self, params):
         assert (len(params) == 2)
@@ -53,7 +54,7 @@ class Layer:
 
     def add_crop_box(self):
         self.label.config(
-            highlightthickness=3,              # Thickness of the border
+            highlightthickness=3,               # Thickness of the border
             highlightbackground="black",        # Color of the border when not focused
             highlightcolor="black"              # Color of the border when focused
         )
@@ -105,6 +106,10 @@ class Layer:
             Point(start_x, start_y + self._image.height) # Bottom left corner
         ]
 
+    def destroy(self):
+        self.label.destroy()
+        self._image.image.close()
+
     @property
     def widget_state(self):
         return self._widget_state
@@ -118,6 +123,8 @@ class Layer:
                     self.label.drag_active = True
                 case "Resize":
                     self.last_scalers = [50, 50, 50]
+                case "Delete":
+                    pass
                 case _:
                     # Cleanup
                     self.unclick()
@@ -161,6 +168,11 @@ class Layers:
             case "crop-slide":
                 if self._active_layer:
                     self._active_layer.crop(params)
+            case "delete-layer":
+                if self._active_layer:
+                    self._active_layer.destroy()
+                    self.layers.remove(self._active_layer)
+                    self._active_layer = None
 
     def _get_active_layer(self):
         for layer in self.layers:

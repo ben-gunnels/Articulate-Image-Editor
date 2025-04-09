@@ -10,13 +10,12 @@ class DraggableLabel(tk.Label):
         self.drag_active = False
         self.selected = False
 
-    
-
     def on_click(self, event):
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
 
         self.selected = True
+
         # Add thin blue outline
         self.config(
             highlightthickness=1,              # Thickness of the border

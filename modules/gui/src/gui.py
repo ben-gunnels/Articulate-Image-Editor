@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 from PIL import Image
 from core.src.layers_manager import *
 from app.Globals import *
@@ -150,7 +151,7 @@ class GUI(tk.Frame):
             if self.active_widget == label: # Button pressed is the currently active one so set it to inactive
                 self.active_widget = None
                 return
-            
+        
         button = self.buttons[label].button
         button.config(relief="sunken")
         self.active_widget = label
@@ -176,8 +177,8 @@ class GUI(tk.Frame):
                 pass
             case "Blur":
                 pass
-            case "Filter":
-                pass
+            case "Delete":
+                self.layers_manager.register_event("delete-layer")
             case "Layers":
                 pass
             case "Crop":
@@ -188,3 +189,7 @@ class GUI(tk.Frame):
                 pass
             case _:
                 raise ValueError(f"Invalid widget label {label}")
+            
+        if label == "Delete":
+            time.sleep(0.3)
+            self._bind_widget("Delete")
