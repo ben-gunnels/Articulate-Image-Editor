@@ -37,38 +37,19 @@ class ArticulateImage:
         self.image = self.original_image.copy().resize((_scale_factor_w, _scale_factor_h), resample=resample)
         self._update_numpy()
 
-    def crop(self, dimension, value):
-        new_pos = None # Tells the layer whether to move the starting position
+    def crop(self, scalers):
         _temp_array = self.numpy().copy()
 
-        if self.prev_crop_dimension and self.prev_crop_dimension != dimension:
-            self._numpy = np.array(self.image, dtype=np.uint8)
+        _start_row = int(_temp_array.shape[0] - _temp_array.shape[0] * (scalers[2] / 100)) # Top definition
+        _end_row = int(_temp_array.shape[0] * (scalers[0] / 100)) # Bottom definition
+        _start_col = int(_temp_array.shape[1] - _temp_array.shape[1] * (scalers[1] / 100)) # Left definition
+        _end_col = int(_temp_array.shape[1] * (scalers[3] /  100)) # Right definition
 
-        match dimension:
-            case "Top":
-                _scaler = _temp_array.shape[0] * (value / 100)
-                _start_row = int(_temp_array.shape[0] - _scaler)
-                _resized_array = _temp_array[_start_row:, :, :]
-                self.image = Image.fromarray(_resized_array)
-                new_pos = (self.original_height - self.height)
-            case "Bottom":
-                _end_row = int(_temp_array.shape[0] * (value / 100))
-                _resized_array = _temp_array[:_end_row, :, :]
-                self.image = Image.fromarray(_resized_array)
-                new_pos = 0
-            case "Right":
-                _end_col = int(_temp_array.shape[1] * (value / 100))
-                _resized_array = _temp_array[:, :_end_col, :]
-                self.image = Image.fromarray(_resized_array)
-                new_pos = 0
-            case "Left":
-                _scaler = _temp_array.shape[1] * (value / 100)
-                _start_col = int(_temp_array.shape[1] - _scaler)
-                _resized_array = _temp_array[:, _start_col:, :]
-                self.image = Image.fromarray(_resized_array)
-                new_pos = (self.original_width - self.width)
-        self.prev_crop_dimension = dimension
-        return new_pos
+        _resized_array = _temp_array[_start_row:_end_row, _start_col:_end_col, :]
+        self.image = Image.fromarray(_resized_array)
+
+        return ((self.original_width - self.width), (self.original_height - self.height))
+    
     @property
     def width(self):
         return self.image.size[0]

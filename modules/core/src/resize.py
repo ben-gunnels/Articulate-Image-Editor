@@ -29,8 +29,14 @@ class Resizer:
                 # Update the most recent scaler value for the height
                 scalers[1] = value
 
-    def crop(self, params, image, scalers):
-        dimension, value = params
+    def crop(self, dimension, image, scalers):        
+        new_pos = image.crop(scalers)
         
-        new_pos = image.crop(dimension, value)
+        if dimension == "Top":
+            new_pos = (0, new_pos[1])
+        elif dimension == "Left": 
+            new_pos = (new_pos[0], 0)
+        else:
+            new_pos = (0, 0)
+
         return new_pos

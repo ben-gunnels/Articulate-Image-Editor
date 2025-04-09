@@ -17,7 +17,10 @@ g = Globals()
 class Layer:
     resizer = Resizer()
     # Holds the previous scaler value
-    last_scaler = [50, 50, 50]
+    last_scalers = [50, 50, 50]
+    crop_scalers = [100, 100, 100, 100] # Bottom, Left, Top, Right
+    delta_x, delta_y = 0, 0
+    last_dimension = None
     def __init__(self, frame):
         self._frame = frame
         self._widget_state = None
@@ -41,7 +44,7 @@ class Layer:
         assert (isinstance(params[0], str))
         assert (isinstance(params[1], int))
 
-        self.resizer.resize(params, self._image, self.last_scaler)
+        self.resizer.resize(params, self._image, self.last_scalers)
 
         # Update position
         self._set_image_position(self.x, self.y)
@@ -56,15 +59,29 @@ class Layer:
         )
 
     def crop(self, params):
-        new_pos = self.resizer.crop(params, self._image, None)
-        if new_pos: # update the position on top or left crop
-            match params[0]:
-                case "Top":
-                    self._set_image_position(self.x, self.y + new_pos)
-                case "Left":
-                    self._set_image_position(self.x + new_pos, self.y)
-                case _:
-                    self._set_image_position(self.x, self.y)
+        assert len(params) == 2
+        _translation_table = {
+            "Bottom": 0,
+            "Left": 1,
+            "Top": 2,
+            "Right": 3
+        }
+
+        if self.last_dimension and self.last_dimension != params[0]:
+            self._image.original_width = self._image.width
+            self._image.original_height = self._image.height
+
+        self.crop_scalers[_translation_table[params[0]]] = params[1]
+
+        new_pos = self.resizer.crop(params[0], self._image, self.crop_scalers)
+        self.x += new_pos[0] - self.delta_x if new_pos[0] > 0 else 0
+        self.y += new_pos[1] - self.delta_y if new_pos[1] > 0 else 0
+
+        self.delta_x = new_pos[0]
+        self.delta_y = new_pos[1]
+
+        self.last_dimension = params[0]
+        self._set_image_position(self.x, self.y)
 
         # Update position
         self.label.destroy()
@@ -100,10 +117,13 @@ class Layer:
                 case "Move":
                     self.label.drag_active = True
                 case "Resize":
-                    self.last_scaler = [50, 50, 50]
+                    self.last_scalers = [50, 50, 50]
                 case _:
+                    # Cleanup
                     self.unclick()
-                    self.last_scaler = [50, 50, 50]
+                    self._image._update_numpy()
+                    self.crop_scalers = [100, 100, 100, 100]
+                    self.last_scalers = [50, 50, 50]
                     self.label.drag_active = False
 
 class Layers:
