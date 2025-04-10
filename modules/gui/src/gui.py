@@ -66,6 +66,8 @@ class GUI(tk.Frame):
         self.layers_manager.provide_frames(self.sub_frames)
         self._set_widget_buttons()
 
+        self.master.bind("<Return>", self._on_enter)
+
     def _set_menu_bar(self, menu_bar):
         menu_bar_buttons = GetMenuBarButtons()
         dropdown_options = GetDropdownOptions()
@@ -168,7 +170,7 @@ class GUI(tk.Frame):
             case "Rotate":
                 pass
             case "Scalpel":
-                pass
+                self.layers_manager.register_event("scalpel")
             case "Brightness":
                 pass
             case "Saturation":
@@ -193,3 +195,6 @@ class GUI(tk.Frame):
         if label == "Delete":
             time.sleep(0.3)
             self._bind_widget("Delete")
+
+    def _on_enter(self, event):
+        self.layers_manager.register_event("return")

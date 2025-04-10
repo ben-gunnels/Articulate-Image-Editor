@@ -1,8 +1,10 @@
 import tkinter as tk
+import numpy as np
 from PIL import ImageTk, Image
 from core.src.articulate_image import ArticulateImage
 from core.src.reorient import Reorient
 from core.src.draggable_label import DraggableLabel
+from core.src.image_scalpel import ImageScalpel
 from core.src.utils.utils import *
 from app.Globals import Globals
 from core.src.resize import Resizer
@@ -16,23 +18,27 @@ g = Globals()
 
 class Layer:
     resizer = Resizer()
+    scalpel = ImageScalpel()
     # Holds the previous scaler value
     last_scalers = [50, 50, 50]
     crop_scalers = [100, 100, 100, 100] # Bottom, Left, Top, Right
     delta_x, delta_y = 0, 0
     last_dimension = None
+    scalpel_points = []
+
     def __init__(self, frame):
         self._frame = frame
         self._widget_state = None
         self.x = 0
         self.y = 0
 
-    def store_image(self, image: ArticulateImage):
+    def store_image(self, image: ArticulateImage, start_x=0, start_y=0):
         self._image = image
-        self._set_image_position(0, 0)
+        self._set_image_position(start_x, start_y)
         
     def show_image(self):
         self._image.initialize_size((self._frame.winfo_width(), self._frame.winfo_height()), resample=Image.Resampling.NEAREST)
+        self._update_mask()
         self._update_label()
 
     def unclick(self):
@@ -40,12 +46,19 @@ class Layer:
             if self.label:
                 self.label.unclick()
 
+    def handle_return(self):
+        match self._widget_state:
+            case "Scalpel":
+                self._handle_scalpel_return()
+
+
     def resize(self, params):
         assert (len(params) == 2)
         assert (isinstance(params[0], str))
         assert (isinstance(params[1], int))
 
         self.resizer.resize(params, self._image, self.last_scalers)
+        self._update_mask()
 
         # Update position
         self._set_image_position(self.x, self.y)
@@ -75,6 +88,7 @@ class Layer:
         self.crop_scalers[_translation_table[params[0]]] = params[1]
 
         new_pos = self.resizer.crop(params[0], self._image, self.crop_scalers)
+
         self.x += new_pos[0] - self.delta_x if new_pos[0] > 0 else 0
         self.y += new_pos[1] - self.delta_y if new_pos[1] > 0 else 0
 
@@ -88,10 +102,89 @@ class Layer:
         self.label.destroy()
         self._update_label()
         self.add_crop_box()
+    
+    def update_scalpel(self, event):
+        """
+        Handle a scalpel (drawing) update based on user input coordinates.
+
+        This function appends the current (x, y) point to the list of scalpel points,
+        draws connecting lines on the RGBA mask, blends the updated mask onto the
+        base image using alpha transparency, and refreshes the GUI label to reflect
+        the changes.
+
+        Parameters:
+            event (tuple): A tuple (x, y) containing the coordinates of the user interaction.
+        """
+        x, y = event
+        self.scalpel_points.append((x, y))
+
+        if len(self.scalpel_points) > 1:
+            # Draw on the RGBA mask
+            self.scalpel.draw_lines(self.mask, self.scalpel_points)
+
+            # Convert image to NumPy array
+            image_array = self._image.numpy()
+
+            # Extract RGB and Alpha channels from mask
+            mask_rgb = self.mask[:, :, :3]
+            alpha = self.mask[:, :, 3] / 255.0  # Normalize alpha to range [0, 1]
+
+            # Apply alpha blending
+            blended = image_array
+            for c in range(3):  # Loop through B, G, R channels
+                blended[:, :, c] = (
+                    alpha * mask_rgb[:, :, c] + (1 - alpha) * image_array[:, :, c]
+                ).astype(np.uint8)
+
+            # Update the image object and GUI
+            self._image.image_from_array()
+            self.label.destroy()
+            self._update_label()
+
+            # Apply styling and state to the label
+            self.label.config(
+                highlightthickness=1,
+                highlightbackground="blue",
+                highlightcolor="blue"
+            )
+            self.label.selected = True
+            self.label.scalpel = True
+    
+    def _handle_scalpel_return(self):
+        self._update_mask()
+        self.scalpel.apply_polygon_mask(self.mask, self.scalpel_points)
+        # Get a fresh image
+        self._image.resize((self._image.width, self._image.height), resample=Image.Resampling.NEAREST)
+        image_array = self._image.numpy()
+        image_array[:, :, 3] = self.mask[:, :, 3]
+        image_array[image_array[:, :, 3] == 0] = [0, 0, 0, 0]  # R=0, G=0, B=0, A=0
+
+        w, h = self._image.width, self._image.height
+
+        self._image.image_from_array()
+        (bounds, shifts) = self.scalpel.get_non_transparent_bounds(image_array)
+        new_pos = self.resizer.crop_with_known_bounds(bounds, self._image)
+
+        self.x += int(shifts[0] * w)
+        self.y += int(shifts[2] * h)
+
+        self._set_image_position(self.x, self.y)
+        self.label.destroy()
+        self._update_label()
+
+        # Apply styling and state to the label
+        self.label.config(
+            highlightthickness=1,
+            highlightbackground="blue",
+            highlightcolor="blue"
+        )
+
+    def _update_mask(self):
+        self.mask = np.zeros(self._image.numpy().shape)
 
     def _update_label(self):
         tk_image = ImageTk.PhotoImage(self._image.image)
-        self.label = DraggableLabel(layer=self, master=self._frame, image=tk_image)
+        self.label = DraggableLabel(layer=self, master=self._frame, image=tk_image, bg="#A9A9A9")
 
         self.label.image = tk_image
 
@@ -125,6 +218,8 @@ class Layer:
                     self.last_scalers = [50, 50, 50]
                 case "Delete":
                     pass
+                case "Scalpel":
+                    self.label.scalpel = True
                 case _:
                     # Cleanup
                     self.unclick()
@@ -132,6 +227,8 @@ class Layer:
                     self.crop_scalers = [100, 100, 100, 100]
                     self.last_scalers = [50, 50, 50]
                     self.label.drag_active = False
+                    self.label.scalpel = False
+                    self.scalpel_points = []
 
 class Layers:
     def __init__(self):
@@ -173,6 +270,11 @@ class Layers:
                     self._active_layer.destroy()
                     self.layers.remove(self._active_layer)
                     self._active_layer = None
+            case "scalpel":
+                pass
+            case "return":
+                if self._active_layer:
+                    self._active_layer.handle_return()
 
     def _get_active_layer(self):
         for layer in self.layers:

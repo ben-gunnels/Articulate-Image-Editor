@@ -50,6 +50,18 @@ class ArticulateImage:
 
         return ((self.original_width - self.width), (self.original_height - self.height))
     
+    def crop_with_known_bounds(self, bounds):
+        left, right, top, bottom = bounds
+        _temp_array = self.numpy().copy()
+        _resized_array = _temp_array[top:bottom, left:right]
+
+        self.image=  Image.fromarray(_resized_array)
+        return ((self.original_width - self.width), (self.original_height - self.height))
+    
+    
+    def image_from_array(self):
+        self.image = Image.fromarray(self._numpy)
+    
     @property
     def width(self):
         return self.image.size[0]

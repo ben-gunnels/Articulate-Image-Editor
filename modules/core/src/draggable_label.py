@@ -9,6 +9,7 @@ class DraggableLabel(tk.Label):
         self._drag_data = {"x": 0, "y": 0}
         self.drag_active = False
         self.selected = False
+        self.scalpel = False
 
     def on_click(self, event):
         self._drag_data["x"] = event.x
@@ -22,6 +23,9 @@ class DraggableLabel(tk.Label):
             highlightbackground="blue",        # Color of the border when not focused
             highlightcolor="blue"              # Color of the border when focused
         )
+
+        if self.scalpel:
+            self.layer.update_scalpel((event.x, event.y))
     
     def unclick(self):
         self.selected = False

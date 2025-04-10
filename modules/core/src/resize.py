@@ -40,3 +40,9 @@ class Resizer:
             new_pos = (0, 0)
 
         return new_pos
+    
+    def crop_with_known_bounds(self, bounds, image):
+
+        new_pos = image.crop_with_known_bounds(bounds)
+
+        return new_pos
