@@ -37,7 +37,7 @@ pip install -r requirements.txt
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/yourusername/image-editor.git
+git clone https://github.com/ben-gunnels/Articulate-Image-Editor.git
 cd image-editor/modules/
 ```
 
@@ -74,7 +74,7 @@ image-editor/
 
 ## 📄 License
 
-MIT License © 2025 Your Name
+MIT License © 2025 Benjamin Gunnels
 
 ---
 
@@ -83,8 +83,4 @@ MIT License © 2025 Your Name
 Contributions, issues and feature requests are welcome!  
 Feel free to submit a pull request or open an issue.
 
-```
-
 ---
-
-Let me know if you'd like me to generate badges, update with real file paths, or add GitHub Actions / setup instructions for packaging!
