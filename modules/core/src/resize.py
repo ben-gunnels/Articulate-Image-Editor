@@ -1,10 +1,11 @@
 from PIL import ImageTk, Image
+from core.src.articulate_image import ArticulateImage
 
 class Resizer:
     def __init__(self):
         pass
 
-    def resize(self, params, image, scalers):
+    def resize(self, params: list, image: ArticulateImage, scalers: list):
         dimension, value = params
 
         match dimension:
@@ -29,7 +30,7 @@ class Resizer:
                 # Update the most recent scaler value for the height
                 scalers[1] = value
 
-    def crop(self, dimension, image, scalers):        
+    def crop(self, dimension: str, image: ArticulateImage, scalers: list):        
         new_pos = image.crop(scalers)
         
         if dimension == "Top":
@@ -41,7 +42,7 @@ class Resizer:
 
         return new_pos
     
-    def crop_with_known_bounds(self, bounds, image):
+    def crop_with_known_bounds(self, bounds: list, image: ArticulateImage):
 
         new_pos = image.crop_with_known_bounds(bounds)
 

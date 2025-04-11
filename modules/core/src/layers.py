@@ -51,7 +51,6 @@ class Layer:
             case "Scalpel":
                 self._handle_scalpel_return()
 
-
     def resize(self, params):
         assert (len(params) == 2)
         assert (isinstance(params[0], str))
@@ -119,6 +118,7 @@ class Layer:
         self.scalpel_points.append((x, y))
 
         if len(self.scalpel_points) > 1:
+            self._update_mask()
             # Draw on the RGBA mask
             self.scalpel.draw_lines(self.mask, self.scalpel_points)
 
@@ -152,6 +152,7 @@ class Layer:
     
     def _handle_scalpel_return(self):
         self._update_mask()
+        self._image._update_numpy()
         self.scalpel.apply_polygon_mask(self.mask, self.scalpel_points)
         # Get a fresh image
         self._image.resize((self._image.width, self._image.height), resample=Image.Resampling.NEAREST)
@@ -224,11 +225,12 @@ class Layer:
                     # Cleanup
                     self.unclick()
                     self._image._update_numpy()
+                    self._image.set_changes()
                     self.crop_scalers = [100, 100, 100, 100]
                     self.last_scalers = [50, 50, 50]
+                    self.scalpel_points = []
                     self.label.drag_active = False
                     self.label.scalpel = False
-                    self.scalpel_points = []
 
 class Layers:
     def __init__(self):
@@ -283,3 +285,4 @@ class Layers:
 
 
 
+ 

@@ -13,6 +13,13 @@ class ArticulateImage:
         self._numpy = np.array(self.image, dtype=np.uint8)
 
         self.prev_crop_dimension = None
+
+    def set_changes(self):
+        """
+            Saves the changes to the image and makes the 'original image' the most up to date one. 
+        """
+        self.original_image = self.image.copy()
+        self._update_numpy()
        
     def numpy(self):
         return self._numpy
@@ -55,9 +62,8 @@ class ArticulateImage:
         _temp_array = self.numpy().copy()
         _resized_array = _temp_array[top:bottom, left:right]
 
-        self.image=  Image.fromarray(_resized_array)
+        self.image = Image.fromarray(_resized_array)
         return ((self.original_width - self.width), (self.original_height - self.height))
-    
     
     def image_from_array(self):
         self.image = Image.fromarray(self._numpy)
