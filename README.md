@@ -94,7 +94,7 @@ articulate-image-editor/
 
 ## 🖼️ Screenshot
 
-![Demo](docs/assets/crop_demo.png)
+![Demo](doc/assets/crop_demo.png)
 
 ---
 
