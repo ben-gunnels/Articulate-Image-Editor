@@ -52,13 +52,40 @@ python -m app.src.app
 ## 🛠️ Project Structure
 
 ```
-image-editor/
+articulate-image-editor/
 ├── modules/
-│   └── app/
-│       └── src/
-│           ├── app.py          # Main application
-│           ├── editor.py       # Core image editing logic
-│           └── utils/          # Helper functions
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   ├── src/
+│   │   │   ├── __init__.py
+│   │   │   ├── app.py          # Main application entry
+│   │   │   └── Globals.py      # Shared global variables
+│   ├── core/
+│   │   ├── perf/
+│   │   └── src/
+│   │       ├── __init__.py
+│   │       ├── utils/                 # Utility scripts
+│   │       ├── articulate_image.py    # Image object abstraction
+│   │       ├── color_augmentation.py  # Saturation, contrast, brightness
+│   │       ├── draggable_label.py     # UI label with drag
+│   │       ├── file_manager.py        # File loading/saving
+│   │       ├── image_scalpel.py       # Image slicing logic
+│   │       ├── layers_manager.py      # Layer control logic
+│   │       ├── layers.py              # Image layer definitions
+│   │       ├── reorient.py            # Rotation, flipping, etc.
+│   │       ├── resize.py              # Image resizing logic
+│   │       └── Widget.py              # Base widget class
+│   ├── gui/
+│   │   ├── __pycache__/
+│   │   └── src/
+│   │       ├── __init__.py
+│   │       ├── articulate_frame.py    # Tkinter frame logic
+│   │       ├── config.py              # GUI configuration
+│   │       ├── gui_objects.py         # Tkinter UI components
+│   │       ├── gui.py                 # GUI window setup
+│   │       └── widgets.py             # Custom widgets
+│   ├── test/
+│   └── utils.py
 ├── assets/                     # Sample images/icons
 └── README.md
 ```
@@ -67,8 +94,7 @@ image-editor/
 
 ## 🖼️ Screenshot
 
-*(Placeholder for GUI screenshot)*  
-![screenshot](assets/screenshot.png)
+![Demo](docs/assets/crop_demo.png)
 
 ---
 
