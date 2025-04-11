@@ -39,10 +39,10 @@ def GetWidgetButtons():
     """
         Generates the button layout for each of the widgets that are used as image editing tools.
     """
-    button_names = ["Layers", "Scale", "Rotate", "Crop", "Brightness", "Saturation", "Contrast", "Blur", "Move", "Draw", "Scalpel", "Delete"]
+    button_names = ["Layers", "Scale", "Draw", "Crop", "Brightness", "Saturation", "Contrast", "Blur", "Move", "Rotate", "Scalpel", "Delete"]
 
     def get_horizontal_padding(i):
-        if i%2:
+        if i % 2:
             return (5, 20)
         else:
             return (40, 5)

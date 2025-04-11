@@ -168,17 +168,21 @@ class GUI(tk.Frame):
                 self.widget_box = scale_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
                 self.widget_box.place(x=x, y=y)
             case "Rotate":
-                pass
+                self.layers_manager.register_event("rotate")
             case "Scalpel":
                 self.layers_manager.register_event("scalpel")
-            case "Brightness":
-                pass
-            case "Saturation":
-                pass
             case "Contrast":
-                pass
+                self.widget_box = contrast_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
+                self.widget_box.place(x=x, y=y)
+            case "Brightness":
+                self.widget_box = brightness_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
+                self.widget_box.place(x=x, y=y)
+            case "Saturation":
+                self.widget_box = saturation_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
+                self.widget_box.place(x=x, y=y)
             case "Blur":
-                pass
+                self.widget_box = blur_widget(self.sub_frames["widgets-frame"], self.layers_manager.register_event)
+                self.widget_box.place(x=x, y=y)
             case "Delete":
                 self.layers_manager.register_event("delete-layer")
             case "Layers":
@@ -192,9 +196,9 @@ class GUI(tk.Frame):
             case _:
                 raise ValueError(f"Invalid widget label {label}")
             
-        if label == "Delete":
+        if label in {"Delete", "Rotate"}:
             time.sleep(0.3)
-            self._bind_widget("Delete")
+            self._bind_widget(label)
 
     def _on_enter(self, event):
         self.layers_manager.register_event("return")

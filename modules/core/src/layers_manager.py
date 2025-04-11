@@ -42,11 +42,21 @@ class LayersManager:
                 self._layers.send_action(event_type, params)
             case "crop-slide":
                 self._layers.send_action(event_type, params)
+            case "contrast-slide":
+                self._layers.send_action(event_type, params)
+            case "brightness-slide":
+                self._layers.send_action(event_type, params)
+            case "blur-slide":
+                self._layers.send_action(event_type, params)
+            case "saturation-slide":
+                self._layers.send_action(event_type, params)
             case "delete-layer":
                 self._layers.send_action(event_type, params)
             case "scalpel":
                 self._layers.send_action(event_type, params)
             case "return":
+                self._layers.send_action(event_type, params)
+            case "rotate":
                 self._layers.send_action(event_type, params)
             case _:
                 raise ValueError(f"{event_type} not a valid event_type.")

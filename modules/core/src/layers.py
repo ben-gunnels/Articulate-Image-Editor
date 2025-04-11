@@ -2,9 +2,10 @@ import tkinter as tk
 import numpy as np
 from PIL import ImageTk, Image
 from core.src.articulate_image import ArticulateImage
-from core.src.reorient import Reorient
 from core.src.draggable_label import DraggableLabel
+from core.src.reorient import Reorient
 from core.src.image_scalpel import ImageScalpel
+from core.src.color_augmentation import ColorEditor
 from core.src.utils.utils import *
 from app.Globals import Globals
 from core.src.resize import Resizer
@@ -19,6 +20,8 @@ g = Globals()
 class Layer:
     resizer = Resizer()
     scalpel = ImageScalpel()
+    reorient = Reorient()
+    color = ColorEditor()
     # Holds the previous scaler value
     last_scalers = [50, 50, 50]
     crop_scalers = [100, 100, 100, 100] # Bottom, Left, Top, Right
@@ -39,7 +42,7 @@ class Layer:
     def show_image(self):
         self._image.initialize_size((self._frame.winfo_width(), self._frame.winfo_height()), resample=Image.Resampling.NEAREST)
         self._update_mask()
-        self._update_label()
+        self._update_label(destroy=False)
 
     def unclick(self):
         if self._widget_state != "Delete":
@@ -61,7 +64,13 @@ class Layer:
 
         # Update position
         self._set_image_position(self.x, self.y)
-        self.label.destroy()
+        self._update_label()
+
+    def rotate(self):
+        """
+            Rotate the image 90 degrees clockwise.
+        """
+        self.reorient.rotate(self._image)
         self._update_label()
 
     def add_crop_box(self):
@@ -98,9 +107,24 @@ class Layer:
         self._set_image_position(self.x, self.y)
 
         # Update position
-        self.label.destroy()
         self._update_label()
         self.add_crop_box()
+
+    def contrast(self, params):
+        self.color.contrast(self._image, params[1] / 50)
+        self._update_label()
+
+    def brightness(self, params):
+        self.color.brightness(self._image, (params[1] - 50) * 2)
+        self._update_label()
+
+    def blur(self, params):
+        self.color.blur(self._image, params[1])
+        self._update_label()
+
+    def saturation(self, params):
+        self.color.saturation(self._image, params[1] / 50)
+        self._update_label()
     
     def update_scalpel(self, event):
         """
@@ -138,7 +162,6 @@ class Layer:
 
             # Update the image object and GUI
             self._image.image_from_array()
-            self.label.destroy()
             self._update_label()
 
             # Apply styling and state to the label
@@ -170,7 +193,6 @@ class Layer:
         self.y += int(shifts[2] * h)
 
         self._set_image_position(self.x, self.y)
-        self.label.destroy()
         self._update_label()
 
         # Apply styling and state to the label
@@ -183,7 +205,9 @@ class Layer:
     def _update_mask(self):
         self.mask = np.zeros(self._image.numpy().shape)
 
-    def _update_label(self):
+    def _update_label(self, destroy=True):
+        if destroy:
+            self.label.destroy()
         tk_image = ImageTk.PhotoImage(self._image.image)
         self.label = DraggableLabel(layer=self, master=self._frame, image=tk_image, bg="#A9A9A9")
 
@@ -200,6 +224,7 @@ class Layer:
             Point(start_x, start_y + self._image.height) # Bottom left corner
         ]
 
+
     def destroy(self):
         self.label.destroy()
         self._image.image.close()
@@ -210,7 +235,10 @@ class Layer:
     
     @widget_state.setter
     def widget_state(self, new_state):
-        if self.label:
+        """
+            Set the default settings when a widget state is changed. 
+        """
+        if self.label and new_state != self.widget_state:
             self._widget_state = new_state
             match new_state:
                 case "Move":
@@ -221,6 +249,8 @@ class Layer:
                     pass
                 case "Scalpel":
                     self.label.scalpel = True
+                case "Rotate":
+                    pass
                 case _:
                     # Cleanup
                     self.unclick()
@@ -267,6 +297,18 @@ class Layers:
             case "crop-slide":
                 if self._active_layer:
                     self._active_layer.crop(params)
+            case "contrast-slide":
+                if self._active_layer:
+                    self._active_layer.contrast(params)
+            case "brightness-slide":
+                if self._active_layer:
+                    self._active_layer.brightness(params)
+            case "blur-slide":
+                if self._active_layer:
+                    self._active_layer.blur(params)
+            case "saturation-slide":
+                if self._active_layer:
+                    self._active_layer.saturation(params)
             case "delete-layer":
                 if self._active_layer:
                     self._active_layer.destroy()
@@ -274,6 +316,9 @@ class Layers:
                     self._active_layer = None
             case "scalpel":
                 pass
+            case "rotate":
+                if self._active_layer:
+                    self._active_layer.rotate()
             case "return":
                 if self._active_layer:
                     self._active_layer.handle_return()
