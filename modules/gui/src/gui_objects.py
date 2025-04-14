@@ -29,6 +29,10 @@ def GetSubFrames(globals: Globals):
                           "bg": "#A9A9A9"}, 
                           {"row": 2, "column": 0, "padx": 15, "pady": 15, "ipadx": 10, "ipady": 10})
     }
+
+    globals.LAYERS_WIDTH = SUB_FRAMES["layers-frame"][0]["width"]
+    globals.LAYERS_HEIGHT = SUB_FRAMES["layers-frame"][0]["height"]
+
     return MappingProxyType(SUB_FRAMES) # Freeze SUB_FRAMES
 
 def GetDropdownOptions():

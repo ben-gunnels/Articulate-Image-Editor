@@ -43,6 +43,7 @@ class Resizer:
         return new_pos
     
     def crop_with_known_bounds(self, bounds: list, image: ArticulateImage):
+        print(bounds)
 
         new_pos = image.crop_with_known_bounds(bounds)
 

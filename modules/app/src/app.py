@@ -11,7 +11,7 @@ screen_height = root.winfo_screenheight()
 
 # App Objects
 g = Globals()
-layer_manager = LayersManager(root)
+layer_manager = LayersManager(root, g)
 
 
 g.SCREEN_WIDTH = int(screen_width * 0.75)

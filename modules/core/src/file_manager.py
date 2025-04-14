@@ -18,5 +18,17 @@ class FileManager:
             except Exception as e:
                 messagebox.showerror("Error!", str(e))
 
-    def save_file(self, image, output_path):
-        pass
+    def save_file(self, image=None):
+        if image is None:
+            messagebox.showerror("Error", "No image to save.")
+            return
+
+        filetypes = [("PNG files", "*.png")]
+        filepath = filedialog.asksaveasfilename(defaultextension=".png", filetypes=filetypes)
+
+        if filepath:
+            try:
+                image.save(filepath)
+                messagebox.showinfo("Success", f"Image saved to {filepath}")
+            except Exception as e:
+                messagebox.showerror("Save Error", f"Failed to save image:\n{str(e)}")

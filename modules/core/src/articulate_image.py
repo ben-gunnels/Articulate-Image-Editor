@@ -7,8 +7,11 @@ class ArticulateImage:
         The standard image object for the Articulate Image Editor. 
     
     """
-    def __init__(self, bytes):
-        self.image = Image.open(io.BytesIO(bytes))
+    def __init__(self, img_data, mode="bytes"):
+        if mode == "bytes":
+            self.image = Image.open(io.BytesIO(img_data))
+        elif mode == "array":
+            self.image = Image.fromarray(img_data)
         self.original_image = self.image.copy()
         self._numpy = np.array(self.image, dtype=np.uint8)
 

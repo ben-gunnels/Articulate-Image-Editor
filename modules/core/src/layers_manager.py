@@ -3,8 +3,8 @@ from core.src.layers import *
 from core.src.file_manager import *
 
 class LayersManager:
-    def __init__(self, root):
-        self._layers = Layers()
+    def __init__(self, root, globals):
+        self._layers = Layers(globals)
         self._file_manager = FileManager()
         self._root = root
 
@@ -20,7 +20,8 @@ class LayersManager:
         new_layer.show_image()
         
     def save_file(self):
-        self._file_manager.save_file()
+        output_image = self._layers.save_layers()
+        self._file_manager.save_file(output_image)
 
     def provide_frames(self, sub_frames):
         self._gui_frame = sub_frames["layers-frame"]
